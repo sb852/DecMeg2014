@@ -39,11 +39,11 @@ def load_all_data():
     :return train_x_all: The training data of all subjects.
     :return train_y_all: The labels of all subjects.
     '''
-    number_subjects = 16
+    number_subjects = 1
     for current_subject_nr in range(0, number_subjects):
 
-        train_x = np.load('../data/subject' + str(current_subject_nr) + '_train_x_filtered.npy')
-        train_y = np.load('../data/subject' + str(current_subject_nr) + '_train_y.npy')
+        train_x = np.load('../data/data/subject' + str(current_subject_nr) + '_train_x_filtered.npy')
+        train_y = np.load('../data/data/subject' + str(current_subject_nr) + '_train_y.npy')
 
         #  We split the data into training, validation and testing data.
         train_x, train_y, val_x, val_y, test_x, test_y = split_data_into_folds(train_x, train_y)
@@ -91,7 +91,7 @@ def setup_model(data):
                      activation='relu',
                      input_shape=input_shape))
     model.add(BatchNormalization())
-    model.add(MaxPooling2D(pool_size=(3, 3), strides=(2, 2)))
+    model.add(MaxPooling2D(pool_size=(3, 3), strides=(1, 1)))
     model.add(Dropout(0.2))
 
     #  The second convolutional block.
@@ -101,22 +101,23 @@ def setup_model(data):
     model.add(Dropout(0.2))
 
     #  The third convolutional block.
-    model.add(Conv2D(32, (3, 3), activation='relu'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D(pool_size=(3, 3)))
-    model.add(Dropout(0.2))
+    #model.add(Conv2D(32, (3, 3), activation='relu'))
+    #model.add(BatchNormalization())
+    #model.add(MaxPooling2D(pool_size=(3, 3)))
+    #model.add(Dropout(0.2))
 
+    model.add(Flatten())
     #  Adding an LSTM to extract time features.
-    model.add(Reshape((15, 12*32)))
-    model.add(GRU(50))
+    #model.add(Reshape((15, 12*32)))
+    #model.add(GRU(50))
 
     #  The final dense layer.
     model.add(Dense(20, activation='relu'))
-    model.add(Dropout(0.2))
+    #  model.add(Dropout(0.2))
     model.add(Dense(num_classes, activation='softmax'))
 
     model.compile(loss=keras.losses.categorical_crossentropy,
-                  optimizer=keras.optimizers.SGD(lr=0.1),
+                  optimizer=keras.optimizers.SGD(lr=0.01),
                   metrics=['accuracy'])
 
     return model
@@ -147,9 +148,9 @@ def train_model(train_x, train_y, val_x, val_y):
         zoom_range=[0.90, 1.1])
 
     #  We are performing early stopping.
-    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.000001, patience=5, verbose=False, mode='auto')
+    early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.000001, patience=10, verbose=False, mode='auto')
 
-    n_epochs = 100
+    n_epochs = 200
     model.fit(train_x, train_y, validation_data=(val_x, val_y), epochs=n_epochs, batch_size=100,
               callbacks=[early_stopping], verbose=1)
 
