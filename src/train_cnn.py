@@ -122,7 +122,7 @@ def setup_model(data):
     return model
 
 
-def train_model():
+def train_model(train_x, train_y, val_x, val_y):
     '''
     We are training the model.
     :param train_x: The training data.
@@ -149,7 +149,8 @@ def train_model():
     #  We are performing early stopping.
     early_stopping = EarlyStopping(monitor='val_loss', min_delta=0.000001, patience=5, verbose=False, mode='auto')
 
-    model.fit(train_x, train_y_1hot, validation_data=(val_x, y_val_1hot), epochs=n_epochs, batch_size=100,
+    n_epochs = 100
+    model.fit(train_x, train_y, validation_data=(val_x, val_y), epochs=n_epochs, batch_size=100,
               callbacks=[early_stopping], verbose=1)
 
     model.fit(train_x, train_y)
@@ -175,8 +176,11 @@ if __name__ == '__main__':
     #  We are setting up the neural net.
     model = setup_model(train_x)
 
+    #  We are performing one-hot encoding.
+    train_y = perform_one_hot_encoding(train_y)
+    val_y = perform_one_hot_encoding(val_y)
+    test_y = perform_one_hot_encoding(test_y)
+
     #  We are training the model.
-
-
     model = train_model(train_x, train_y, val_x, val_y)
 

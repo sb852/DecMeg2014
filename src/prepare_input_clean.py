@@ -64,6 +64,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order):
         y = sosfiltfilt(sos, data)
         return y
 
+
 def apply_filter(train_x):
     '''
     We are applying a butterworth filter.
@@ -90,7 +91,6 @@ def apply_filter(train_x):
 
     print('Filters applied')
     return filtered_data
-
 
 
 def preprocess_data():
